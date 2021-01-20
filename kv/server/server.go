@@ -38,17 +38,47 @@ func NewServer(storage storage.Storage) *Server {
 // Raw API.
 func (server *Server) RawGet(_ context.Context, req *kvrpcpb.RawGetRequest) (*kvrpcpb.RawGetResponse, error) {
 	// Your Code Here (1).
-	return nil, nil
+	reader,_ := server.storage.Reader(req.Context)
+	defer reader.Close()
+	byt,err := reader.GetCF(req.Cf, req.Key)
+	if err != nil {
+		return nil, err
+	} else if byt == nil {
+		return &kvrpcpb.RawGetResponse{NotFound: true}, err
+	}
+	return &kvrpcpb.RawGetResponse{
+		Value: byt,
+		NotFound: false,
+		}, nil
 }
 
 func (server *Server) RawPut(_ context.Context, req *kvrpcpb.RawPutRequest) (*kvrpcpb.RawPutResponse, error) {
 	// Your Code Here (1).
-	return nil, nil
+	err := server.storage.Write(req.Context, []storage.Modify{
+		{
+			storage.Put{
+				req.Key,
+				req.Value,
+				req.Cf,
+			},
+		},
+	})
+	return &kvrpcpb.RawPutResponse {
+		
+	}, err
 }
 
 func (server *Server) RawDelete(_ context.Context, req *kvrpcpb.RawDeleteRequest) (*kvrpcpb.RawDeleteResponse, error) {
 	// Your Code Here (1).
-	return nil, nil
+	err := server.storage.Write(req.Context, []storage.Modify{
+		{
+			storage.Delete{
+				req.Key,
+				req.Cf,
+			},
+		},
+	})
+	return nil, err
 }
 
 func (server *Server) RawScan(_ context.Context, req *kvrpcpb.RawScanRequest) (*kvrpcpb.RawScanResponse, error) {
