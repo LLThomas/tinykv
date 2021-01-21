@@ -64,7 +64,11 @@ func (server *Server) RawPut(_ context.Context, req *kvrpcpb.RawPutRequest) (*kv
 		},
 	})
 	return &kvrpcpb.RawPutResponse {
-		
+		nil,
+		"",
+		struct{}{},
+		nil,
+		0,
 	}, err
 }
 
