@@ -17,7 +17,9 @@ type StandAloneStorage struct {
 
 func NewStandAloneStorage(conf *config.Config) *StandAloneStorage {
 	// Your Code Here (1).
-	return nil
+	return &StandAloneStorage{
+		engine_util.CreateDB(conf.DBPath, conf.Raft),
+	}
 }
 
 func (s *StandAloneStorage) Start() error {
@@ -27,6 +29,9 @@ func (s *StandAloneStorage) Start() error {
 
 func (s *StandAloneStorage) Stop() error {
 	// Your Code Here (1).
+	if err := s.kvDB.Close(); err != nil {
+		return err
+	}
 	return nil
 }
 
